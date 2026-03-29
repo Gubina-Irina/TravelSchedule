@@ -24,7 +24,7 @@ struct CityListView: View {
                         .onChange(of: searchText) { _, newValue in
                             viewModel.searchCities(query: newValue)
                         }
-                    if !searchText.isEmpty {
+                    if !searchText.isEmpty && viewModel.isLoading {
                         Button {
                             searchText = ""
                         } label: {

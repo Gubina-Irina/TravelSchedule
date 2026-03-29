@@ -68,7 +68,8 @@ final class TestFetch {
                 print("Fetching SchedualBetweenStations...")
                 let schedualBetweenStations = try await service.getSchedualBetweenStations(
                     from: "s9600213",
-                    to: "s9600215")
+                    to: "s9600215",
+                    date: "")
                 print("Successfully fetched schedual between station: \(schedualBetweenStations)")
             } catch {
                 print("Error fetching schedual between station: \(error)")

@@ -31,7 +31,7 @@ struct StationListView: View {
                     .onChange(of: searchText) { _, newValue in
                         viewModel.searchStations(query: newValue)
                     }
-                if !searchText.isEmpty {
+                if !searchText.isEmpty && viewModel.isLoading {
                     Button {
                         searchText = ""
                     } label: {

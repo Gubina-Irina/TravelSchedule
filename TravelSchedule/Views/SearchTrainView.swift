@@ -7,7 +7,13 @@
 
 import SwiftUI
 
-struct MainView: View {
+enum Route: Hashable {
+    case from
+    case to
+    case carriers(route: TravelRoute)
+}
+
+struct SearchTrainView: View {
     @StateObject private var viewModel = MainViewModel()
     @State private var navigationPath = NavigationPath()
     @State private var currentDirection: String = ""
@@ -23,7 +29,7 @@ struct MainView: View {
                     VStack(spacing: 0) {
                         Button {
                             currentDirection = "from"
-                            navigationPath.append("from")
+                            navigationPath.append(Route.from)
                         } label: {
                             SelectDestinationView(
                                 city: viewModel.fromCity?.title ?? "",
@@ -35,7 +41,7 @@ struct MainView: View {
                         
                         Button {
                             currentDirection = "to"
-                            navigationPath.append("to")
+                            navigationPath.append(Route.to)
                         } label: {
                             SelectDestinationView(
                                 city: viewModel.toCity?.title ?? "",
@@ -68,6 +74,17 @@ struct MainView: View {
                     navigationPath.append(city)
                 }
             }
+            .navigationDestination(for: Route.self) { route in
+                switch route {
+                case .from: CityListView {
+                    city in navigationPath.append(city)
+                }
+                case .to : CityListView { city in
+                    navigationPath.append(city) }
+                case .carriers(let travelRoute):
+                    CarrierListView(route: travelRoute)
+                }
+            }
             .navigationDestination(for: City.self) { city in
                 StationListView(city: city) { selectedCity, selectedStation in
                     if currentDirection == "from" {
@@ -84,7 +101,7 @@ struct MainView: View {
             }
             if viewModel.fromCity != nil && viewModel.toCity != nil {
                 Button {
-                    
+                    searchTrains()
                 } label: {
                     Text("Найти")
                         .font(.system(size: 17, weight: .bold))
@@ -98,8 +115,23 @@ struct MainView: View {
             
         }
     }
+    private func searchTrains() {
+        guard let fromCity = viewModel.fromCity,
+              let fromStation = viewModel.fromStation,
+              let toCity = viewModel.toCity,
+              let toStation = viewModel.toStation else { return }
+        
+        let route = TravelRoute(
+            fromCity: fromCity,
+            fromStation: fromStation,
+            toCity: toCity,
+            toStation: toStation
+        )
+        
+        navigationPath.append(Route.carriers(route: route))
+    }
 }
 
 #Preview {
-    MainView()
+    SearchTrainView()
 }

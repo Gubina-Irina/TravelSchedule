@@ -15,7 +15,7 @@ protocol DataProviderProtocol {
     func getAllStations() async throws -> AllStations
     
     // Поиск и расписание
-    func getSchedualBetweenStations(from: String, to: String) async throws -> SchedualBetweenStations
+    func getSchedualBetweenStations(from: String, to: String, date: String, transportType: String?) async throws -> SchedualBetweenStations
     func getStationSchedule(station: String) async throws -> StationSchedule
     func getRouteStations(uid: String) async throws -> RouteStations
     
@@ -84,8 +84,25 @@ final class DataProvider: DataProviderProtocol {
     }
     
     // 2. Расписание между станциями
-    func getSchedualBetweenStations(from: String, to: String) async throws -> SchedualBetweenStations {
-        return try await searchService.getSchedualBetweenStations(from: from, to: to)
+    func getSchedualBetweenStations(from: String, to: String, date: String, transportType: String? = "train") async throws -> SchedualBetweenStations {
+        do {
+                // 1. Пробуем только поезда
+                return try await searchService.getSchedualBetweenStations(
+                    from: from,
+                    to: to,
+                    date: date,
+                    transportType: transportType
+                )
+                
+            } catch {
+                // 2. fallback — пробуем ВСЁ
+                return try await searchService.getSchedualBetweenStations(
+                    from: from,
+                    to: to,
+                    date: date,
+                    transportType: nil
+                )
+            }
     }
     
     // 3. Расписание по станции
